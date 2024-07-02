@@ -48,8 +48,8 @@ RUN python3 -m pip install --no-cache-dir awscli==1.29.85
 COPY entry.sh ${FUNCTION_DIR}
 RUN chmod 755 ${FUNCTION_DIR}/entry.sh
 
-COPY backup.sh ${FUNCTION_DIR}
-RUN chmod 755 ${FUNCTION_DIR}/backup.sh
+COPY restore.sh ${FUNCTION_DIR}
+RUN chmod 755 ${FUNCTION_DIR}/restore.sh
 
 ENTRYPOINT [ "/home/app/entry.sh" ]
 CMD [ "app.handler" ]

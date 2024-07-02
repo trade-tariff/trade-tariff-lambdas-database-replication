@@ -54,7 +54,7 @@ provider:
         - "*"
 
 functions:
-  backup:
+  restore:
     image: database-replication
     vpcDiscovery:
       vpcName: "trade-tariff-${sls:stage}-vpc"
