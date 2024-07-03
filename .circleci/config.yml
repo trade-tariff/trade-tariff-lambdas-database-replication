@@ -60,7 +60,14 @@ workflows:
 
   deploy-to-staging:
     jobs:
+      - build:
+          name: build-staging
+          environment: staging
+          context: trade-tariff-database-backups-staging
+
       - deploy:
           name: deploy-staging
           stage: staging
           context: trade-tariff-database-backups-staging
+          requires:
+            - build-staging
