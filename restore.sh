@@ -42,7 +42,7 @@ export PGPASSWORD="$POSTGRES_PASSWORD"
 
 BACKUP_FILE="tariff-merged-production.sql.gz"
 
-curl -Ou tariff:"$BASIC_AUTH_PASSWORD" "https://dumps.trade-tariff.service.gov.uk/$BACKUP_FILE"
+curl -ou "https://tariff:$BASIC_AUTH_PASSWORD@dumps.trade-tariff.service.gov.uk/$BACKUP_FILE" $BACKUP_FILE
 
 gzip -d $BACKUP_FILE
 
