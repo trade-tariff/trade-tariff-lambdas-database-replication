@@ -32,12 +32,17 @@ if [ -z "${POSTGRES_PASSWORD}" ]; then
   exit 1
 fi
 
+if [ -z "${BASIC_AUTH_PASSWORD}" ]; then
+  echo "You need to set the BASIC_AUTH_PASSWORD environment variable."
+  exit 1
+fi
+
 # env vars needed for pgdump
 export PGPASSWORD="$POSTGRES_PASSWORD"
 
 BACKUP_FILE="tariff-merged-production.sql.gz"
 
-aws s3api get-object --bucket "$S3_BUCKET" --key "$BACKUP_FILE" "$BACKUP_FILE" || exit 2
+curl -Ou tariff:"$BASIC_AUTH_PASSWORD" "https://dumps.trade-tariff.service.gov.uk/$BACKUP_FILE"
 
 gzip -d $BACKUP_FILE
 
