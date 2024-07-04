@@ -66,5 +66,6 @@ functions:
       securityGroups:
         - names:
             - "trade-tariff-be-rd-${sls:stage}"
+            - "trade-tariff-alb-security-group-${sls:stage}"
     events:
       - schedule: cron(0 2 ? * 2 *) # Run every Monday at 0200 UTC
