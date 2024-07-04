@@ -42,17 +42,14 @@ export PGPASSWORD="$POSTGRES_PASSWORD"
 
 BACKUP_FILE="tariff-merged-production.sql.gz"
 
-curl -ou "https://tariff:$BASIC_AUTH_PASSWORD@dumps.trade-tariff.service.gov.uk/$BACKUP_FILE" $BACKUP_FILE
-
-gzip -d $BACKUP_FILE
-
-pg_restore -h "$POSTGRES_HOST" \
-  -U "$POSTGRES_USER"          \
-   "$POSTGRES_DATABASE"        \
-  --no-acl                     \
-  --no-owner                   \
-  --clean                      \
-  --verbose                    \
-  -f "${BACKUP_FILE%.gz}"
+curl -o- "https://tariff:$BASIC_AUTH_PASSWORD@dumps.trade-tariff.service.gov.uk/$BACKUP_FILE" | \
+  gzip -d | \
+  pg_restore -h "$POSTGRES_HOST" \
+  -U "$POSTGRES_USER"            \
+  -d "$POSTGRES_DATABASE"        \
+  --no-acl                       \
+  --no-owner                     \
+  --clean                        \
+  --verbose                      \
 
 echo "SQL backup restored successfully" && exit 0
