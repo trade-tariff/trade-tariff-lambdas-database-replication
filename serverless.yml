@@ -25,34 +25,7 @@ provider:
     POSTGRES_HOST: ${env:POSTGRES_HOST}
     POSTGRES_PASSWORD: ${env:POSTGRES_PASSWORD}
     POSTGRES_USER: ${env:POSTGRES_USER}
-    S3_BUCKET: "trade-tariff-database-replication-${aws:accountId}"
     BASIC_AUTH_PASSWORD: ${env:BASIC_AUTH_PASSWORD}
-
-  iamRoleStatements:
-    - Effect: "Allow"
-      Action:
-        - s3:DeleteObject
-        - s3:GetObject
-        - s3:ListBucket
-        - s3:PutObject
-      Resource:
-        - "arn:aws:s3:::trade-tariff-database-replication-${aws:accountId}"
-        - "arn:aws:s3:::trade-tariff-database-replication-${aws:accountId}/*"
-
-    - Effect: "Allow"
-      Action:
-        - kms:Decrypt
-        - kms:GenerateDataKey
-      Resource:
-        - "arn:aws:kms:${self:provider.region}:${aws:accountId}:key/*"
-
-    - Effect: "Allow"
-      Action:
-        - ec2:CreateNetworkInterface
-        - ec2:DescribeNetworkInterfaces
-        - ec2:DeleteNetworkInterface
-      Resource:
-        - "*"
 
 functions:
   restore:
