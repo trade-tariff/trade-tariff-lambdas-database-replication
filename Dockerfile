@@ -49,6 +49,7 @@ COPY entry.sh ${FUNCTION_DIR}
 RUN chmod 755 ${FUNCTION_DIR}/entry.sh
 
 COPY restore.sh ${FUNCTION_DIR}
+COPY after_restore.sql ${FUNCTION_DIR}
 RUN chmod 755 ${FUNCTION_DIR}/restore.sh
 
 ENTRYPOINT [ "/home/app/entry.sh" ]
