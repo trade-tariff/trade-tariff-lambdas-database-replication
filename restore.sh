@@ -2,32 +2,32 @@
 
 set -eo
 
-if [ -z "${ENVIRONMENT}" ]; then
+if [ "$ENVIRONMENT" = "" ]; then
   echo "You need to set the ENVIRONMENT environment variable."
   exit 1
 fi
 
-if [ -z "${POSTGRES_DATABASE}" ]; then
+if [ "$POSTGRES_DATABASE" = "" ]; then
   echo "You need to set the POSTGRES_DATABASE environment variable."
   exit 1
 fi
 
-if [ -z "${POSTGRES_HOST}" ]; then
+if [ "$POSTGRES_HOST" = "" ]; then
   echo "You need to set the POSTGRES_HOST environment variable."
   exit 1
 fi
 
-if [ -z "${POSTGRES_USER}" ]; then
+if [ "$POSTGRES_USER" = "" ]; then
   echo "You need to set the POSTGRES_USER environment variable."
   exit 1
 fi
 
-if [ -z "${POSTGRES_PASSWORD}" ]; then
+if [ "$POSTGRES_PASSWORD" = "" ]; then
   echo "You need to set the POSTGRES_PASSWORD environment variable or link to a container named POSTGRES."
   exit 1
 fi
 
-if [ -z "${BASIC_AUTH_PASSWORD}" ]; then
+if [ "$BASIC_AUTH_PASSWORD" = "" ]; then
   echo "You need to set the BASIC_AUTH_PASSWORD environment variable."
   exit 1
 fi
@@ -43,4 +43,10 @@ curl -o- "https://tariff:$BASIC_AUTH_PASSWORD@dumps.trade-tariff.service.gov.uk/
   -U "$POSTGRES_USER"              \
   -d "$POSTGRES_DATABASE"
 
-echo "SQL backup restored successfully" && exit 0
+echo "SQL backup restored successfully"
+
+cat after_restore.sql | psql -h "$POSTGRES_HOST"         \
+  -U "$POSTGRES_USER"              \
+  -d "$POSTGRES_DATABASE"
+
+echo "Applied after restore SQL script"
