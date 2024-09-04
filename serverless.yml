@@ -41,4 +41,4 @@ functions:
             - "trade-tariff-be-rd-${sls:stage}"
             - "trade-tariff-alb-security-group-${sls:stage}"
     events:
-      - schedule: cron(0 21 * * ? *) # Run every day at 21:00 UTC
+      - schedule: cron(20 21 * * ? *) # Run every day at 21:20 UTC
