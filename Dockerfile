@@ -8,7 +8,8 @@ RUN apk add --no-cache \
     libcurl            \
     libstdc++          \
     postgresql13       \
-    jq
+    jq                 \
+    bash
 
 FROM python-alpine AS build-image
 RUN apk add --no-cache \

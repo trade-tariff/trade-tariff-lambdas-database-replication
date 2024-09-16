@@ -1,10 +1,12 @@
-#!/bin/sh
+#!/bin/bash
 
-[[ -n $DEBUG ]] && set -o xtrace
+[[ "$TRACE" ]] && set -o xtrace
 set -o errexit
 set -o nounset
 set -o pipefail
 set -o noclobber
+
+declare -A SERVICE_COUNTS
 
 if [ "$ENVIRONMENT" = "" ]; then
   echo "You need to set the ENVIRONMENT environment variable."
@@ -40,8 +42,6 @@ export PGPASSWORD="$POSTGRES_PASSWORD" # env var needed for psql
 BACKEND_SERVICES="backend-admin-uk backend-admin-xi backend-uk backend-xi worker-uk worker-xi"
 BACKUP_FILE="tariff-merged-production.sql.gz"
 CLUSTER_NAME="trade-tariff-cluster-$ENVIRONMENT"
-
-declare -A SERVICE_COUNTS
 
 get_desired_count_for_service() {
     local service=$1
