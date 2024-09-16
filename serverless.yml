@@ -33,6 +33,8 @@ provider:
         - ecs:ListTasks
         - ecs:StartTask
         - ecs:StopTask
+        - ecs:DescribeServices
+        - ecs:UpdateService
       Resource:
         - "arn:aws:ecs:eu-west-2:${aws:accountId}:cluster/trade-tariff-cluster-*"
         - "arn:aws:ecs:eu-west-2:${aws:accountId}:task/trade-tariff-cluster-*"
