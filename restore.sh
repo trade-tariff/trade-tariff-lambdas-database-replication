@@ -73,7 +73,14 @@ stop_services() {
 
 start_services() {
   for service in $BACKEND_SERVICES; do
-      set_desired_count_for_service_to $service ${SERVICE_COUNTS[$service]}
+      local desired_count
+      desired_count=${SERVICE_COUNTS[$service]}
+
+      if [ $desired_count -eq 0 ]; then
+          desired_count=1
+      fi
+
+      set_desired_count_for_service_to $service $desired_count
   done
 }
 
@@ -95,4 +102,4 @@ cat after_restore.sql | psql -h "$POSTGRES_HOST"         \
 echo "Applied after restore SQL script"
 
 echo "Starting services"
-start_connected_tasks
+start_services
