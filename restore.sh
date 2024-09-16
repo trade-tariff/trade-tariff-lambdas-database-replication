@@ -32,10 +32,32 @@ if [ "$BASIC_AUTH_PASSWORD" = "" ]; then
   exit 1
 fi
 
-# env vars needed for pgdump
-export PGPASSWORD="$POSTGRES_PASSWORD"
-
+export PGPASSWORD="$POSTGRES_PASSWORD" # env var needed for psql
+BACKEND_SERVICES="backend-admin-uk backend-admin-xi backend-uk backend-xi worker-uk worker-xi"
 BACKUP_FILE="tariff-merged-production.sql.gz"
+
+stop_connected_tasks() {
+  for service in BACKEND_SERVICES; do
+    local tasks
+    tasks=$(aws ecs list-tasks --cluster trade-tariff-cluster-$ENVIRONMENT --service-name $service | jq -r '.taskArns[]')
+    for task in $tasks; do
+      aws ecs stop-task --cluster trade-tariff-cluster-$ENVIRONMENT --task $task
+    done
+  done
+}
+
+start_connected_tasks() {
+  for service in BACKEND_SERVICES; do
+    local tasks
+    tasks=$(aws ecs list-tasks --cluster trade-tariff-cluster-$ENVIRONMENT --service-name $service | jq -r '.taskArns[]')
+    for task in $tasks; do
+      aws ecs start-task --cluster trade-tariff-cluster-$ENVIRONMENT --task $task
+    done
+  done
+}
+
+echo "Stopping connected tasks"
+stop_connected_tasks
 
 curl -o- "https://tariff:$BASIC_AUTH_PASSWORD@dumps.trade-tariff.service.gov.uk/$BACKUP_FILE" | \
   gzip -d | \
@@ -50,3 +72,6 @@ cat after_restore.sql | psql -h "$POSTGRES_HOST"         \
   -d "$POSTGRES_DATABASE"
 
 echo "Applied after restore SQL script"
+
+echo "Starting connected tasks"
+start_connected_tasks
