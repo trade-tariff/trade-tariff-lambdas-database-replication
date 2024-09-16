@@ -27,6 +27,18 @@ provider:
     POSTGRES_USER: ${env:POSTGRES_USER}
     BASIC_AUTH_PASSWORD: ${env:BASIC_AUTH_PASSWORD}
 
+  iamRoleStatements:
+    - Effect: "Allow"
+      Action:
+        - ecs:ListTasks
+        - ecs:StartTask
+        - ecs:StopTask
+      Resource:
+        - "arn:aws:ecs:eu-west-2:${aws:accountId}:cluster/trade-tariff-cluster-*"
+        - "arn:aws:ecs:eu-west-2:${aws:accountId}:task/trade-tariff-cluster-*"
+        - "arn:aws:ecs:eu-west-2:${aws:accountId}:service/trade-tariff-cluster-*"
+        - "arn:aws:ecs:eu-west-2:${aws:accountId}:container-instance/trade-tariff-cluster-*"
+
 functions:
   restore:
     image: database-replication
