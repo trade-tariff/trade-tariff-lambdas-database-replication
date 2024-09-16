@@ -1,6 +1,12 @@
-#!/bin/sh
+#!/bin/bash
 
-set -eo
+[[ "$TRACE" ]] && set -o xtrace
+set -o errexit
+set -o nounset
+set -o pipefail
+set -o noclobber
+
+declare -A SERVICE_COUNTS
 
 if [ "$ENVIRONMENT" = "" ]; then
   echo "You need to set the ENVIRONMENT environment variable."
@@ -32,10 +38,54 @@ if [ "$BASIC_AUTH_PASSWORD" = "" ]; then
   exit 1
 fi
 
-# env vars needed for pgdump
-export PGPASSWORD="$POSTGRES_PASSWORD"
-
+export PGPASSWORD="$POSTGRES_PASSWORD" # env var needed for psql
+BACKEND_SERVICES="backend-admin-uk backend-admin-xi backend-uk backend-xi worker-uk worker-xi"
 BACKUP_FILE="tariff-merged-production.sql.gz"
+CLUSTER_NAME="trade-tariff-cluster-$ENVIRONMENT"
+
+get_desired_count_for_service() {
+    local service=$1
+
+    aws ecs describe-services --cluster trade-tariff-cluster-$ENVIRONMENT \
+        --services $service \
+        --query 'services[0].desiredCount' \
+        --output text
+}
+
+set_desired_count_for_service_to() {
+    local service=$1
+    local desired_count=$2
+
+    aws ecs update-service --cluster trade-tariff-cluster-$ENVIRONMENT \
+        --service $service \
+        --desired-count $desired_count > /dev/null
+}
+
+stop_services() {
+  for service in $BACKEND_SERVICES; do
+      SERVICE_COUNTS[$service]=$(get_desired_count_for_service $service)
+
+      set_desired_count_for_service_to $service 0
+  done
+
+  sleep 20 # Give the services time to stop
+}
+
+start_services() {
+  for service in $BACKEND_SERVICES; do
+      local desired_count
+      desired_count=${SERVICE_COUNTS[$service]}
+
+      if [ $desired_count -eq 0 ]; then
+          desired_count=1
+      fi
+
+      set_desired_count_for_service_to $service $desired_count
+  done
+}
+
+echo "Stopping services"
+stop_services
 
 curl -o- "https://tariff:$BASIC_AUTH_PASSWORD@dumps.trade-tariff.service.gov.uk/$BACKUP_FILE" | \
   gzip -d | \
@@ -50,3 +100,6 @@ cat after_restore.sql | psql -h "$POSTGRES_HOST"         \
   -d "$POSTGRES_DATABASE"
 
 echo "Applied after restore SQL script"
+
+echo "Starting services"
+start_services
