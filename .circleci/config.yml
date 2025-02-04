@@ -80,9 +80,3 @@ workflows:
           stage: staging
           context: trade-tariff-database-backups-staging
           <<: *filter-main
-
-      - deploy:
-          name: deploy-staging-aurora
-          stage: staging-aurora
-          context: trade-tariff-database-backups-staging
-          <<: *filter-main
