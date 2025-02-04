@@ -53,6 +53,18 @@ provider:
         - "arn:aws:secretsmanager:eu-west-2:${aws:accountId}:secret:tradetariffpostgres${sls:stage}-connection-string-*"
         - "arn:aws:secretsmanager:eu-west-2:${aws:accountId}:secret:aurora-postgres-rw-connection-string-*"
 
+    - Effect: "Allow"
+      Action:
+        - kms:Encrypt
+        - kms:Decrypt
+        - kms:ReEncryptFrom
+        - kms:ReEncryptTo
+        - kms:GenerateDataKeyPair
+        - kms:GenerateDataKeyPairWithoutPlainText
+        - kms:GenerateDataKeyWithoutPlaintext
+      Resource:
+        - arn:aws:kms:eu-west-2:${aws:accountId}:alias/secretsmanager-key
+
 functions:
   restore:
     image: database-replication
@@ -76,7 +88,7 @@ functions:
 
     image: database-replication
     environment:
-      DATABASE:SECRET: "aurora-postgres-rw-connection-string"
+      DATABASE_SECRET: "aurora-postgres-rw-connection-string"
     vpcDiscovery:
       vpcName: "trade-tariff-${sls:stage}-vpc"
       subnets:
