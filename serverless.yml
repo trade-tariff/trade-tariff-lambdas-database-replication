@@ -72,7 +72,7 @@ functions:
       - schedule: cron(20 21 * * ? *) # Run every day at 21:20 UTC
 
   restore-aurora:
-    enabled: ${self:custom.aurora_enabled.${sls:stage}}
+    enabled: ${self:custom.enable_aurora.${sls:stage}}
 
     image: database-replication
     environment:
