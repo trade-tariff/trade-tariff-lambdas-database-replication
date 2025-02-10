@@ -1,5 +1,7 @@
 #!/bin/bash
 
+SECONDS=0
+
 [[ "$TRACE" ]] && set -o xtrace
 set -o errexit
 set -o nounset
@@ -13,23 +15,8 @@ if [ "$ENVIRONMENT" = "" ]; then
   exit 1
 fi
 
-if [ "$POSTGRES_DATABASE" = "" ]; then
-  echo "You need to set the POSTGRES_DATABASE environment variable."
-  exit 1
-fi
-
-if [ "$POSTGRES_HOST" = "" ]; then
-  echo "You need to set the POSTGRES_HOST environment variable."
-  exit 1
-fi
-
-if [ "$POSTGRES_USER" = "" ]; then
-  echo "You need to set the POSTGRES_USER environment variable."
-  exit 1
-fi
-
-if [ "$POSTGRES_PASSWORD" = "" ]; then
-  echo "You need to set the POSTGRES_PASSWORD environment variable or link to a container named POSTGRES."
+if [ "$DATABASE_SECRET" = "" ]; then
+  echo "You need to set the DATABASE_SECRET environment variable."
   exit 1
 fi
 
@@ -38,10 +25,15 @@ if [ "$BASIC_AUTH_PASSWORD" = "" ]; then
   exit 1
 fi
 
-export PGPASSWORD="$POSTGRES_PASSWORD" # env var needed for psql
 BACKEND_SERVICES="backend-admin-uk backend-admin-xi backend-uk backend-xi worker-uk worker-xi"
 BACKUP_FILE="tariff-merged-production.sql.gz"
 CLUSTER_NAME="trade-tariff-cluster-$ENVIRONMENT"
+
+DATABASE_URL=$(aws secretsmanager get-secret-value \
+  --secret-id $DATABASE_SECRET \
+  --query SecretString \
+  --output text
+)
 
 get_desired_count_for_service() {
     local service=$1
@@ -88,18 +80,15 @@ echo "Stopping services"
 stop_services
 
 curl -o- "https://tariff:$BASIC_AUTH_PASSWORD@dumps.trade-tariff.service.gov.uk/$BACKUP_FILE" | \
-  gzip -d | \
-  psql -h "$POSTGRES_HOST"         \
-  -U "$POSTGRES_USER"              \
-  -d "$POSTGRES_DATABASE"
+  gzip -d | psql $DATABASE_URL
 
 echo "SQL backup restored successfully"
 
-cat after_restore.sql | psql -h "$POSTGRES_HOST"         \
-  -U "$POSTGRES_USER"              \
-  -d "$POSTGRES_DATABASE"
+cat after_restore.sql | psql $DATABASE_URL
 
 echo "Applied after restore SQL script"
 
 echo "Starting services"
 start_services
+
+echo "Database replication complete. Time: ${SECONDS}s"

@@ -219,6 +219,11 @@ sax@>=0.6.0:
   resolved "https://registry.yarnpkg.com/sax/-/sax-1.4.1.tgz#44cc8988377f126304d3b3fc1010c733b929ef0f"
   integrity sha512-+aWOz7yVScEGoKNd4PA10LZ8sk0A/z5+nXQG5giUO5rprX9jgYsTdov9qCchZiPIZezbZH+jRut8nPodFAX4Jg==
 
+serverless-disable-functions@^1.0.0:
+  version "1.0.0"
+  resolved "https://registry.yarnpkg.com/serverless-disable-functions/-/serverless-disable-functions-1.0.0.tgz#d93ac66084e829f93542220c2c2a5410a1339c4b"
+  integrity sha512-wUfndxhUlfK8ICqeSWqoAHUtotWlRYGffAeuqwp7iwqkM/utch3XO6i+0H7mkOx3X/Zd1G4A9ivzvZg0Vo9JYw==
+
 serverless-plugin-utils@^0.2.0:
   version "0.2.0"
   resolved "https://registry.yarnpkg.com/serverless-plugin-utils/-/serverless-plugin-utils-0.2.0.tgz#6c82d1d0302cb2d902a4927a0156ba3b4fcb997b"
