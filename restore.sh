@@ -79,8 +79,8 @@ start_services() {
 echo "Stopping services"
 stop_services
 
-curl "https://tariff:$BASIC_AUTH_PASSWORD@dumps.trade-tariff.service.gov.uk/$BACKUP_FILE" -O
-gzip -d $BACKUP_FILE | psql $DATABASE_URL
+curl -o- "https://tariff:$BASIC_AUTH_PASSWORD@dumps.trade-tariff.service.gov.uk/$BACKUP_FILE" | \
+  gzip -d | psql $DATABASE_URL
 
 echo "SQL backup restored successfully"
 
