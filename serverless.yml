@@ -63,8 +63,10 @@ provider:
         - kms:GenerateDataKeyPairWithoutPlainText
         - kms:GenerateDataKeyWithoutPlaintext
       Resource:
-        - arn:aws:kms:eu-west-2:${aws:accountId}:alias/secretsmanager-key
-        - "*"
+        - arn:aws:kms:eu-west-2:${aws:accountId}:key/*
+      Condition:
+        "ForAnyValue:StringLike":
+          "kms:ResourceAliases": "alias/secretsmanager*"
 
 functions:
   restore:
